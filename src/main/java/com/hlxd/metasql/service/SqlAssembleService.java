@@ -1,16 +1,17 @@
 package com.hlxd.metasql.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.hlxd.metasql.common.ServiceResult;
 import com.hlxd.metasql.entity.ColumnInfo;
 import com.hlxd.metasql.entity.TableInfo;
 import com.hlxd.metasql.mapper.AssembleMapper;
+import com.hlxd.metasql.utils.StrUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * @author ：liuhao
@@ -63,57 +64,81 @@ public class SqlAssembleService {
 //        return strSql.toString();
 //    }
 
-    public boolean createTable(TableInfo tableInfo, String databaseName) {
+    @Transactional(rollbackFor = Exception.class)
+    public ServiceResult createTable(TableInfo tableInfo, String databaseName) {
 
         StringBuilder createSb = new StringBuilder("create table " + tableInfo.getTableName() + " (");
 
-        //构造列
-        for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
-            createSb.append(columnInfo.getColumnName()).append(" ").append(columnInfo.getColumnType()).append(" ");
-            //默认值
-            if (!StrUtil.isEmpty(columnInfo.getDefaultValue())) {
-                createSb.append(" default ").append(columnInfo.getDefaultValue()).append(" ");
-            }
-            //判断是否自增
-            if (columnInfo.getIsAutoInc() != null && columnInfo.getIsAutoInc()) {
-                createSb.append(" auto_increment ");
-            } else {
-                //判断是否为空
-                if (columnInfo.getIsNull() != null && columnInfo.getIsNull()) {
-                    createSb.append(" null ");
+        try {
+            //构造列
+            for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
+                createSb.append(columnInfo.getColumnName()).append(" ").append(columnInfo.getColumnType()).append(" ");
+                //默认值
+                if (!StrUtil.isEmpty(columnInfo.getDefaultValue())) {
+                    //添加单引号
+                    String defaultValue = StrUtils.addSingleQuotation(columnInfo.getDefaultValue());
+                    createSb.append(" default ").append(defaultValue).append(" ");
+                }
+                //判断是否自增
+                if (columnInfo.getIsAutoInc() != null && columnInfo.getIsAutoInc()) {
+                    createSb.append(" auto_increment ");
                 } else {
-                    createSb.append(" not null ");
+                    //判断是否为空
+                    if (columnInfo.getIsNull() != null && columnInfo.getIsNull()) {
+                        createSb.append(" null ");
+                    } else {
+                        createSb.append(" not null ");
+                    }
+                }
+                //注释
+                if (!StrUtil.isEmpty(columnInfo.getColumnComment())) {
+                    //添加单引号
+                    String comment = StrUtils.addSingleQuotation(columnInfo.getColumnComment());
+                    createSb.append(" comment ").append(comment);
+                }
+                createSb.append(",");
+            }
+            createSb.deleteCharAt(createSb.length() - 1);
+            createSb.append(")");
+
+            //注释
+            if (!StrUtil.isEmpty(tableInfo.getComment())) {
+                //添加单引号
+                String comment = StrUtils.addSingleQuotation(tableInfo.getComment());
+                createSb.append(" comment ").append(comment).append(";");
+            } else {
+                createSb.append(";");
+            }
+
+
+            //约束
+            for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
+                if (columnInfo.getIsPk() != null && columnInfo.getIsPk()) {
+                    String sql = "alter table " + tableInfo.getTableName() + " " +
+                            "add constraint " + tableInfo.getTableName() + "_pk primary key"
+                            + "(" + columnInfo.getColumnName() + ");";
+                    log.info(sql);
+                    createSb.append(sql);
+//                    assembleMapper.createTable(sql);
+                }
+                if (columnInfo.getIsUnique() != null && columnInfo.getIsUnique()) {
+                    String sql = "create unique index " + tableInfo.getTableName() + "_" +
+                            columnInfo.getColumnName() + "_uindex on " + tableInfo.getTableName() +
+                            " " + "(" + columnInfo.getColumnName() + ");";
+                    log.info(sql);
+//                    assembleMapper.createTable(sql);
+                    createSb.append(sql);
                 }
             }
-            //注释
-            if (!StrUtil.isEmpty(columnInfo.getColumnComment())) {
-                createSb.append(" comment ").append(columnInfo.getColumnComment());
-            }
-            createSb.append(",");
+            String createSql = createSb.toString();
+            log.info(createSql);
+            assembleMapper.createTable(createSql);
+            return new ServiceResult(true, null);
+        } catch (Exception e) {
+            log.error(e.getCause().toString());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ServiceResult(false, e.getCause().toString());
         }
-        createSb.deleteCharAt(createSb.length() - 1);
-        createSb.append(");");
-        //注释
-        if (!StrUtil.isEmpty(tableInfo.getComment())) {
-            createSb.append(" comment ").append(tableInfo.getComment());
-        }
-        String createSql = createSb.toString();
-        log.info(createSql);
-        assembleMapper.createTable(createSql);
 
-        //约束
-        for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
-            if (columnInfo.getIsPk() != null && columnInfo.getIsPk()) {
-                String sql = "alter table " + tableInfo.getTableName() + " " +
-                        "add constraint " + tableInfo.getTableName() + "_pk" +
-                        "primary key" + "(" + columnInfo.getColumnName() + ");";
-            }
-            if (columnInfo.getIsUnique() != null && columnInfo.getIsUnique()) {
-                String sql = "create unique index " + tableInfo.getTableName() + "_" +
-                        columnInfo.getColumnName() + "_uindex on " + tableInfo.getTableName() +
-                        " " + "(" + columnInfo.getColumnName() + ");";
-            }
-        }
-        return true;
     }
 }

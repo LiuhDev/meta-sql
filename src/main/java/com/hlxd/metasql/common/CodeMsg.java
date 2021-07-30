@@ -11,7 +11,7 @@ public class CodeMsg {
     // 按照模块定义CodeMsg
     // 通用异常
     public static CodeMsg SUCCESS = new CodeMsg(0, "success");
-//    public static CodeMsg BUSY = new CodeMsg(100, "没有空闲的应用");
+    public static CodeMsg SQLERROR = new CodeMsg(100, "sql语句错误");
 
 
     private CodeMsg(int retCode, String message) {

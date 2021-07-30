@@ -1,6 +1,8 @@
 package com.hlxd.metasql.controller;
 
+import com.hlxd.metasql.common.CodeMsg;
 import com.hlxd.metasql.common.Result;
+import com.hlxd.metasql.common.ServiceResult;
 import com.hlxd.metasql.entity.TableInfo;
 import com.hlxd.metasql.service.SqlAssembleService;
 import io.swagger.annotations.Api;
@@ -30,7 +32,12 @@ public class TestController {
     @ApiOperation(value = "新建数据表")
     public Result<?> createTable(@RequestBody TableInfo tableInfo) {
 
-        boolean status = sqlAssembleService.createTable(tableInfo, null);
-        return Result.success();
+        ServiceResult serviceResult = sqlAssembleService.createTable(tableInfo, null);
+        if (serviceResult.isSuccess()) {
+            return Result.success();
+        } else {
+            return Result.error(CodeMsg.SQLERROR, serviceResult.getInfo());
+        }
+
     }
 }
