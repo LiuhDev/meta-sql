@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
+import java.sql.SQLSyntaxErrorException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author ：liuhao
@@ -132,7 +135,7 @@ public class SqlAssembleService {
             }
             String createSql = createSb.toString();
             log.info(createSql);
-            assembleMapper.createTable(createSql);
+            assembleMapper.executeSql(createSql);
             return new ServiceResult(true, null);
         } catch (Exception e) {
             log.error(e.getCause().toString());
@@ -141,4 +144,35 @@ public class SqlAssembleService {
         }
 
     }
+
+    public ServiceResult dropTable(String tableName, String databaseName) {
+
+        String sql = "drop table " + tableName + ";";
+        log.info(sql);
+        try {
+            assembleMapper.executeSql(sql);
+            return new ServiceResult(true, null);
+        } catch (Exception e) {
+            log.error(e.getCause().toString());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ServiceResult(false, e.getCause().toString());
+        }
+
+    }
+
+    public ServiceResult updateTable(TableInfo tableInfo, String databaseName) {
+        String sql = "use test;";
+        String sql2 = "select * from table_name;";
+        try {
+            assembleMapper.executeSql(sql);
+            Map<String, String> map = assembleMapper.querySql(sql2);
+            assembleMapper.executeSql("use meta_sql");
+            System.out.println(map);
+            return new ServiceResult(true, null);
+        } catch (Exception e) {
+            log.error(e.getCause().toString());
+            return new ServiceResult(false, e.getCause().toString());
+        }
+    }
+
 }

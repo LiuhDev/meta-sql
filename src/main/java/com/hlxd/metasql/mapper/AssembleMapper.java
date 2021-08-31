@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.SQLSyntaxErrorException;
+import java.util.Map;
 
 /**
  * @author ：liuhao
@@ -12,5 +13,7 @@ import java.sql.SQLSyntaxErrorException;
 @Mapper
 public interface AssembleMapper {
 
-    void createTable(@Param("sqlText") String sqlText) throws SQLSyntaxErrorException;
+    void executeSql(@Param("sqlText") String sqlText) throws SQLSyntaxErrorException;
+
+    Map<String, String> querySql(@Param("sqlText") String sqlText) throws SQLSyntaxErrorException;
 }
