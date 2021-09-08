@@ -73,6 +73,7 @@ public class SqlAssembleService {
         StringBuilder createSb = new StringBuilder("create table " + tableInfo.getTableName() + " (");
 
         try {
+            assembleMapper.executeSql("use " + databaseName + ";");
             //构造列
             for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
                 createSb.append(columnInfo.getColumnName()).append(" ").append(columnInfo.getColumnType()).append(" ");
@@ -136,21 +137,30 @@ public class SqlAssembleService {
             String createSql = createSb.toString();
             log.info(createSql);
             assembleMapper.executeSql(createSql);
+            assembleMapper.executeSql("use meta_sql;");
             return new ServiceResult(true, null);
         } catch (Exception e) {
             log.error(e.getCause().toString());
+            try {
+                assembleMapper.executeSql("use meta_sql;");
+            } catch (SQLSyntaxErrorException ex) {
+                ex.printStackTrace();
+            }
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new ServiceResult(false, e.getCause().toString());
         }
 
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ServiceResult dropTable(String tableName, String databaseName) {
 
         String sql = "drop table " + tableName + ";";
         log.info(sql);
         try {
+            assembleMapper.executeSql("use " + databaseName + ";");
             assembleMapper.executeSql(sql);
+            assembleMapper.executeSql("use meta_sql;");
             return new ServiceResult(true, null);
         } catch (Exception e) {
             log.error(e.getCause().toString());
