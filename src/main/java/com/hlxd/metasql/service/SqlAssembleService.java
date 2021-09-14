@@ -3,6 +3,8 @@ package com.hlxd.metasql.service;
 import cn.hutool.core.util.StrUtil;
 import com.hlxd.metasql.common.ServiceResult;
 import com.hlxd.metasql.entity.ColumnInfo;
+import com.hlxd.metasql.entity.ModifyColumnInfo;
+import com.hlxd.metasql.entity.ModifyTableInfo;
 import com.hlxd.metasql.entity.TableInfo;
 import com.hlxd.metasql.mapper.AssembleMapper;
 import com.hlxd.metasql.utils.StrUtils;
@@ -13,8 +15,6 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.sql.SQLSyntaxErrorException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author ：liuhao
@@ -27,53 +27,14 @@ public class SqlAssembleService {
     @Resource
     private AssembleMapper assembleMapper;
 
-    /**
-     * 动态生成SQ及SQL参数L
-     *
-     * @return
-     */
-//    public String updateSqlAndParamList(Vector<String> ve, List<String> paramList, String table, List<String> list) {
-//        StringBuilder strSql = new StringBuilder();//MQ消息SQl
-//        StringBuilder upSql = new StringBuilder();//可执行SQL
-//        try {
-//            //组装SQL语句
-//            strSql = new StringBuilder("update " + table + " set ");
-//            upSql = new StringBuilder("update " + table + " set ");
-//            for (int i = 0; i < ve.size(); i++) {
-//                String str;
-//                String upStr;
-//                String key = ve.get(i);
-//                String fileName = "get" + key.toUpperCase();
-//                String value = (String) t.getClass().getMethod(fileName).invoke(t);
-//                paramList.add(i, value);
-//                if (i == ve.size() - 1) {
-//                    str = key + " = ?";
-//                    upStr = key + "='" + value + "'";
-//                } else {
-//                    str = key + " = ? ,";
-//                    upStr = key + "='" + value + "',";
-//                }
-//                strSql.append(str);
-//                upSql.append(upStr);
-//            }
-//            strSql.append(" where Id = ? ");
-//            upSql.append(" where id='").append((String) t.getClass().getMethod("getID").invoke(t)).append("'");
-//            list.add(upSql.toString());
-////            paramList.add(ve.size(), (String) t.getClass().getMethod("getID").invoke(t));
-//        } catch (Exception e) {
-//            log.info("组装UPDATE SQL失败！失败详情---" + e);
-//
-//        }
-//        return strSql.toString();
-//    }
 
     @Transactional(rollbackFor = Exception.class)
-    public ServiceResult createTable(TableInfo tableInfo, String databaseName) {
+    public ServiceResult createTable(TableInfo tableInfo) {
 
         StringBuilder createSb = new StringBuilder("create table " + tableInfo.getTableName() + " (");
 
         try {
-            assembleMapper.executeSql("use " + databaseName + ";");
+            assembleMapper.executeSql("use " + tableInfo.getDatabaseName() + ";");
             //构造列
             for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
                 createSb.append(columnInfo.getColumnName()).append(" ").append(columnInfo.getColumnType()).append(" ");
@@ -170,14 +131,19 @@ public class SqlAssembleService {
 
     }
 
-    public ServiceResult updateTable(TableInfo tableInfo, String databaseName) {
-        String sql = "use test;";
-        String sql2 = "select * from table_name;";
+    public ServiceResult updateTableInfo(ModifyTableInfo modifyTableInfo) {
+
         try {
-            assembleMapper.executeSql(sql);
-            Map<String, String> map = assembleMapper.querySql(sql2);
-            assembleMapper.executeSql("use meta_sql");
-            System.out.println(map);
+            assembleMapper.executeSql("use " + modifyTableInfo.getDatabaseName() + ";");
+            String str = "rename table" + modifyTableInfo.getOldTableName() + " to " + modifyTableInfo.getNewName() + ";";
+            log.info(str);
+            assembleMapper.executeSql(str);
+            //添加单引号
+            String comment = StrUtils.addSingleQuotation(modifyTableInfo.getComment());
+            str = "alter table" + modifyTableInfo.getNewName() + " comment " + comment + ";";
+            log.info(str);
+            assembleMapper.executeSql(str);
+            assembleMapper.executeSql("use meta_sql;");
             return new ServiceResult(true, null);
         } catch (Exception e) {
             log.error(e.getCause().toString());
@@ -185,4 +151,61 @@ public class SqlAssembleService {
         }
     }
 
+    @Transactional
+    public ServiceResult addTableField(TableInfo tableInfo) {
+
+        try {
+            assembleMapper.executeSql("use " + tableInfo.getDatabaseName() + ";");
+            for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
+                log.info("开始为表" + tableInfo.getTableName() + "增加字段" + columnInfo.getColumnName());
+                assembleMapper.addTableField(tableInfo.getTableName(), columnInfo);
+                log.info("完成为表" + tableInfo.getTableName() + "增加字段" + columnInfo.getColumnName());
+            }
+
+            assembleMapper.executeSql("use meta_sql;");
+            return new ServiceResult(true, null);
+        } catch (Exception e) {
+            log.error(e.getCause().toString());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ServiceResult(false, e.getCause().toString());
+        }
+    }
+
+    @Transactional
+    public ServiceResult deleteTableField(TableInfo tableInfo) {
+        try {
+            assembleMapper.executeSql("use " + tableInfo.getDatabaseName() + ";");
+            for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
+                log.info("开始为表" + tableInfo.getTableName() + "删除字段" + columnInfo.getColumnName());
+                assembleMapper.deleteTableField(tableInfo.getTableName(), columnInfo);
+                log.info("完成为表" + tableInfo.getTableName() + "删除字段" + columnInfo.getColumnName());
+            }
+
+            assembleMapper.executeSql("use meta_sql;");
+            return new ServiceResult(true, null);
+        } catch (Exception e) {
+            log.error(e.getCause().toString());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ServiceResult(false, e.getCause().toString());
+        }
+    }
+
+    public ServiceResult modifyTableField(ModifyTableInfo modifyTableInfo) {
+
+        try {
+            assembleMapper.executeSql("use " + modifyTableInfo.getDatabaseName() + ";");
+            for (ModifyColumnInfo modifyColumnInfo : modifyTableInfo.getModifyColumnInfoList()) {
+                log.info("开始为表" + modifyTableInfo.getNewName() + "修改字段" + modifyColumnInfo.getOldColumnName());
+                assembleMapper.modifyTableField(modifyTableInfo.getNewName(), modifyColumnInfo);
+                log.info("完成为表" + modifyTableInfo.getNewName() + "修改字段" + modifyColumnInfo.getOldColumnName());
+            }
+
+            assembleMapper.executeSql("use meta_sql;");
+            return new ServiceResult(true, null);
+        } catch (Exception e) {
+            log.error(e.getCause().toString());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ServiceResult(false, e.getCause().toString());
+        }
+    }
 }

@@ -6,15 +6,20 @@ import java.util.List;
 
 /**
  * @author ：liuhao
- * @date ：Created in 2021/7/15
+ * @date ：Created in 2021/9/14
  */
 @Data
-public class TableInfo {
+public class ModifyTableInfo {
 
     /**
-     * 表名
+     * 新表名
      */
-    private String tableName;
+    private String newName;
+
+    /**
+     * 旧表名
+     */
+    private String oldTableName;
 
     /**
      * 数据库名
@@ -26,8 +31,6 @@ public class TableInfo {
      */
     private String comment;
 
-    /**
-     * 列信息
-     */
-    private List<ColumnInfo> columnList;
+    private List<ModifyColumnInfo> modifyColumnInfoList;
+
 }

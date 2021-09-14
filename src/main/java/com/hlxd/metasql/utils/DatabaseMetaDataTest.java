@@ -201,6 +201,7 @@ public class DatabaseMetaDataTest {
                 String ascOrDesc = rs.getString("ASC_OR_DESC");//列排序顺序:升序还是降序
                 int cardinality = rs.getInt("CARDINALITY");   //基数
                 System.out.println(nonUnique + "-" + indexQualifier + "-" + indexName + "-" + type + "-" + ordinalPosition + "-" + columnName + "-" + ascOrDesc + "-" + cardinality);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -290,10 +291,13 @@ public class DatabaseMetaDataTest {
     public static void main(String[] args) {
         DatabaseMetaDataTest metaData = new DatabaseMetaDataTest("meta_sql");
 //		metaData.getDataBaseInformation();
-//		metaData.getAllTableList(null);
+		metaData.getAllTableList();
+
 //		metaData.getAllViewList(null);
 //		metaData.getAllSchemas();
-//		metaData.getTableColumns(null, "zsc_admin");
+
+		metaData.getTableColumns(null, "table_1");
+
 //		metaData.getIndexInfo(null, "zsc_admin");
 //		metaData.getAllPrimaryKeys(null, "zsc_admin");
 //        metaData.getAllExportedKeys(null, "zsc_admin");
