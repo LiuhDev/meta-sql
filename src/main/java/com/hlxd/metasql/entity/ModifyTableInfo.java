@@ -21,6 +21,8 @@ public class ModifyTableInfo {
      */
     private String oldTableName;
 
+    private String test;
+
     /**
      * 数据库名
      */
