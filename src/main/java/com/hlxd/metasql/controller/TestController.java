@@ -3,7 +3,7 @@ package com.hlxd.metasql.controller;
 import com.hlxd.metasql.common.CodeMsg;
 import com.hlxd.metasql.common.Result;
 import com.hlxd.metasql.common.ServiceResult;
-import com.hlxd.metasql.entity.ColumnInfo;
+import com.hlxd.metasql.entity.CreateExistTableInfo;
 import com.hlxd.metasql.entity.ModifyTableInfo;
 import com.hlxd.metasql.entity.TableInfo;
 import com.hlxd.metasql.service.SqlAssembleService;
@@ -13,11 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @author ：liuhao
- * @date ：Created in 2021/7/5
  */
 @Slf4j
 @RestController
@@ -96,5 +94,13 @@ public class TestController {
             return Result.error(CodeMsg.SQLERROR, serviceResult.getInfo());
         }
     }
+
+
+//    @PostMapping("/createTableByExistTable")
+//    @ApiOperation(value = "根据已有数据库表创建新表")
+//    public Result<?> createTableByExistTable(@RequestBody CreateExistTableInfo createExistTableInfo) {
+//
+//        ServiceResult serviceResult = sqlAssembleService.createTableByExistTable(createExistTableInfo);
+//    }
 
 }

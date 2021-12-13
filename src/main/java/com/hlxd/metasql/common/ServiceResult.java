@@ -11,7 +11,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ServiceResult {
 
-    private boolean isSuccess;
+    private boolean success;
 
     private String info;
 }

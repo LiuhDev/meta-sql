@@ -2,10 +2,7 @@ package com.hlxd.metasql.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.hlxd.metasql.common.ServiceResult;
-import com.hlxd.metasql.entity.ColumnInfo;
-import com.hlxd.metasql.entity.ModifyColumnInfo;
-import com.hlxd.metasql.entity.ModifyTableInfo;
-import com.hlxd.metasql.entity.TableInfo;
+import com.hlxd.metasql.entity.*;
 import com.hlxd.metasql.mapper.AssembleMapper;
 import com.hlxd.metasql.utils.StrUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +74,7 @@ public class SqlAssembleService {
 
 
             //约束
-            for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
+            tableInfo.getColumnList().forEach(columnInfo -> {
                 if (columnInfo.getIsPk() != null && columnInfo.getIsPk()) {
                     String sql = "alter table " + tableInfo.getTableName() + " " +
                             "add constraint " + tableInfo.getTableName() + "_pk primary key"
@@ -94,7 +91,7 @@ public class SqlAssembleService {
 //                    assembleMapper.createTable(sql);
                     createSb.append(sql);
                 }
-            }
+            });
             String createSql = createSb.toString();
             log.info(createSql);
             assembleMapper.executeSql(createSql);
@@ -116,7 +113,7 @@ public class SqlAssembleService {
     @Transactional(rollbackFor = Exception.class)
     public ServiceResult dropTable(String tableName, String databaseName) {
 
-        String sql = "drop table " + tableName + ";";
+        String sql = "drop table if exists " + tableName + ";";
         log.info(sql);
         try {
             assembleMapper.executeSql("use " + databaseName + ";");
@@ -156,11 +153,11 @@ public class SqlAssembleService {
 
         try {
             assembleMapper.executeSql("use " + tableInfo.getDatabaseName() + ";");
-            for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
+            tableInfo.getColumnList().forEach(columnInfo -> {
                 log.info("开始为表" + tableInfo.getTableName() + "增加字段" + columnInfo.getColumnName());
                 assembleMapper.addTableField(tableInfo.getTableName(), columnInfo);
                 log.info("完成为表" + tableInfo.getTableName() + "增加字段" + columnInfo.getColumnName());
-            }
+            });
 
             assembleMapper.executeSql("use meta_sql;");
             return new ServiceResult(true, null);
@@ -175,11 +172,11 @@ public class SqlAssembleService {
     public ServiceResult deleteTableField(TableInfo tableInfo) {
         try {
             assembleMapper.executeSql("use " + tableInfo.getDatabaseName() + ";");
-            for (ColumnInfo columnInfo : tableInfo.getColumnList()) {
+            tableInfo.getColumnList().forEach(columnInfo -> {
                 log.info("开始为表" + tableInfo.getTableName() + "删除字段" + columnInfo.getColumnName());
                 assembleMapper.deleteTableField(tableInfo.getTableName(), columnInfo);
                 log.info("完成为表" + tableInfo.getTableName() + "删除字段" + columnInfo.getColumnName());
-            }
+            });
 
             assembleMapper.executeSql("use meta_sql;");
             return new ServiceResult(true, null);
@@ -194,11 +191,11 @@ public class SqlAssembleService {
 
         try {
             assembleMapper.executeSql("use " + modifyTableInfo.getDatabaseName() + ";");
-            for (ModifyColumnInfo modifyColumnInfo : modifyTableInfo.getModifyColumnInfoList()) {
+            modifyTableInfo.getModifyColumnInfoList().forEach(modifyColumnInfo -> {
                 log.info("开始为表" + modifyTableInfo.getNewName() + "修改字段" + modifyColumnInfo.getOldColumnName());
                 assembleMapper.modifyTableField(modifyTableInfo.getNewName(), modifyColumnInfo);
                 log.info("完成为表" + modifyTableInfo.getNewName() + "修改字段" + modifyColumnInfo.getOldColumnName());
-            }
+            });
 
             assembleMapper.executeSql("use meta_sql;");
             return new ServiceResult(true, null);
@@ -208,4 +205,8 @@ public class SqlAssembleService {
             return new ServiceResult(false, e.getCause().toString());
         }
     }
+
+//    public ServiceResult createTableByExistTable(CreateExistTableInfo createExistTableInfo) {
+//
+//    }
 }
