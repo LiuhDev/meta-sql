@@ -300,7 +300,7 @@ public class DatabaseMetaDataTest {
 
 //		metaData.getIndexInfo(null, "zsc_admin");
 //		metaData.getAllPrimaryKeys(null, "zsc_admin");
-//        metaData.getAllExportedKeys(null, "zsc_admin");
+//      metaData.getAllExportedKeys(null, "zsc_admin");
 
 
     }

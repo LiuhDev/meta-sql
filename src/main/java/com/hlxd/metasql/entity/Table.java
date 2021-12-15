@@ -48,5 +48,7 @@ public class Table implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime editTime;
 
+    @ApiModelProperty(value = "树级目录id")
+    private String menuId;
 
 }

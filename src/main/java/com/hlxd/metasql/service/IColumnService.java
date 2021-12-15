@@ -1,5 +1,6 @@
 package com.hlxd.metasql.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.hlxd.metasql.entity.Column;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IColumnService extends IService<Column> {
 
+    IPage<Column> getColumnPage(int current, int size, String tableId);
 }

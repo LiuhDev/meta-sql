@@ -1,5 +1,7 @@
 package com.hlxd.metasql.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hlxd.metasql.entity.Table;
 import com.hlxd.metasql.mapper.TableMapper;
 import com.hlxd.metasql.service.ITableService;
@@ -17,4 +19,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class TableServiceImpl extends ServiceImpl<TableMapper, Table> implements ITableService {
 
+    @Override
+    public IPage<Table> getTablePage(int current, int size) {
+
+        IPage<Table> page = new Page<>(current, size);
+        return baseMapper.getTablePage(page);
+    }
 }

@@ -3,7 +3,6 @@ package com.hlxd.metasql.controller;
 import com.hlxd.metasql.common.CodeMsg;
 import com.hlxd.metasql.common.Result;
 import com.hlxd.metasql.common.ServiceResult;
-import com.hlxd.metasql.entity.CreateExistTableInfo;
 import com.hlxd.metasql.entity.ModifyTableInfo;
 import com.hlxd.metasql.entity.TableInfo;
 import com.hlxd.metasql.service.SqlAssembleService;
