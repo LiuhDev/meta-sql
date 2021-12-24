@@ -3,6 +3,9 @@
 <mapper namespace="com.hlxd.metasql.mapper.ColumnMapper">
 
     <select id="getColumnPage" resultType="com.hlxd.metasql.entity.Column">
-        select * from t_column where table_id = #{tableId}
+        select *
+        from t_column
+        where table_id = #{tableId}
+
     </select>
 </mapper>

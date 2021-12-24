@@ -9,10 +9,7 @@ import com.hlxd.metasql.service.ITableService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -39,6 +36,30 @@ public class TableController {
         return Result.success(page);
     }
 
+    @PostMapping("/addTable")
+    @ApiOperation("新增表")
+    public Result<?> addTable(@RequestBody Table table) {
 
+        boolean result = tableService.save(table);
+        return Result.success(result);
+
+    }
+
+    @PostMapping("/editTable")
+    @ApiOperation("编辑表")
+    public Result<?> editTable(@RequestBody Table table) {
+
+        boolean result = tableService.updateById(table);
+        return Result.success(result);
+    }
+
+    @DeleteMapping("/deleteTable")
+    @ApiOperation("删除表")
+    public Result<?> deleteTable(String id) {
+
+        boolean result = tableService.removeById(id);
+
+        return Result.success(result);
+    }
 
 }

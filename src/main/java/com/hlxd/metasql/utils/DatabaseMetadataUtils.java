@@ -1,5 +1,8 @@
 package com.hlxd.metasql.utils;
 
+import lombok.Data;
+import org.springframework.context.annotation.Bean;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -10,27 +13,43 @@ import java.sql.SQLException;
  * @author ：liuhao
  * @date ：Created in 2021/9/10
  */
-public class DatabaseMetaDataTest {
+@Data
+public class DatabaseMetadataUtils {
 
 
+    private String databaseName;
     private DatabaseMetaData dbMetaData = null;
     private Connection con = null;
+    private String driver;
+    private String url;
+    private String user;
+    private String password;
 
 
-    public DatabaseMetaDataTest(String databaseName) {
-        this.getDatabaseMetaData(databaseName);
+    public DatabaseMetadataUtils(String databaseName, String driver, String url, String user, String password) {
+        this.databaseName = databaseName;
+        this.driver = driver;
+        this.url = url;
+        this.user = user;
+        this.password = password;
+        this.getDatabaseMetadata();
     }
 
 
-    private void getDatabaseMetaData(String databaseName) {
+    private void getDatabaseMetadata() {
         try {
             if (dbMetaData == null) {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                String url = "jdbc:mysql://10.10.96.214:3306/" + databaseName + "?useUnicode=true&characterEncoding=utf8";
-                String user = "root";
-                String password = "Hlxd@123";
-                con = DriverManager.getConnection(url, user, password);
+                Class.forName(driver);
+                String accessUrl = url + databaseName + "?useUnicode=true&characterEncoding=utf8";
+
+                con = DriverManager.getConnection(accessUrl, user, password);
                 dbMetaData = con.getMetaData();
+//                Class.forName("com.mysql.cj.jdbc.Driver");
+//                String url = "jdbc:mysql://10.10.96.214:3306/" + databaseName + "?useUnicode=true&characterEncoding=utf8";
+//                String user = "root";
+//                String password = "Hlxd@123";
+//                con = DriverManager.getConnection(url, user, password);
+//                dbMetaData = con.getMetaData();
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
@@ -222,6 +241,7 @@ public class DatabaseMetaDataTest {
                 System.out.println(columnName + "-" + keySeq + "-" + pkName);
             }
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
     }
@@ -289,14 +309,14 @@ public class DatabaseMetaDataTest {
 
 
     public static void main(String[] args) {
-        DatabaseMetaDataTest metaData = new DatabaseMetaDataTest("meta_sql");
+//        DatabaseMetadataUtils metaData = new DatabaseMetadataUtils("meta_sql");
 //		metaData.getDataBaseInformation();
-		metaData.getAllTableList();
+//		metaData.getAllTableList();
 
 //		metaData.getAllViewList(null);
 //		metaData.getAllSchemas();
 
-		metaData.getTableColumns(null, "table_1");
+//		metaData.getTableColumns(null, "table_1");
 
 //		metaData.getIndexInfo(null, "zsc_admin");
 //		metaData.getAllPrimaryKeys(null, "zsc_admin");

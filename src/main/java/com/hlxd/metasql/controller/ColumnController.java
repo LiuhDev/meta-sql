@@ -6,10 +6,7 @@ import com.hlxd.metasql.common.Result;
 import com.hlxd.metasql.entity.Column;
 import com.hlxd.metasql.service.IColumnService;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -37,4 +34,28 @@ public class ColumnController {
         return Result.success(page);
     }
 
+    @PostMapping("/addColumn")
+    @ApiOperation("新增列")
+    public Result<?> addColumn(Column column) {
+
+        boolean result = columnService.save(column);
+
+        return Result.success(result);
+    }
+
+    @PostMapping("/editColumn")
+    @ApiOperation("编辑列")
+    public Result<?> editColumn(@RequestBody Column column) {
+
+        boolean result = columnService.updateById(column);
+        return Result.success(result);
+    }
+
+    @DeleteMapping("/deleteColumn")
+    @ApiOperation("删除列")
+    public Result<?> deleteTable(String id) {
+
+        boolean result = columnService.removeById(id);
+        return Result.success(result);
+    }
 }

@@ -1,5 +1,7 @@
 package com.hlxd.metasql.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import java.io.Serializable;
@@ -25,6 +27,7 @@ public class Column implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "主键")
+    @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
     @ApiModelProperty(value = "字段编号")

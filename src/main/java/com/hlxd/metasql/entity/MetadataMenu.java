@@ -12,17 +12,17 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 表
+ * 元数据目录
  * </p>
  *
  * @author liu hao
- * @since 2021-12-07
+ * @since 2021-12-17
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("t_table")
-@ApiModel(value="Table对象", description="表")
-public class Table implements Serializable {
+@TableName("t_metadata_menu")
+@ApiModel(value="MetadataMenu对象", description="元数据目录")
+public class MetadataMenu implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -30,14 +30,17 @@ public class Table implements Serializable {
     @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
-    @ApiModelProperty(value = "表名编号")
-    private String tableCode;
+    @ApiModelProperty(value = "父id")
+    private String pid;
 
-    @ApiModelProperty(value = "表名")
-    private String tableName;
+    @ApiModelProperty(value = "节点名称")
+    private String name;
 
-    @ApiModelProperty(value = "中文表名")
-    private String tableNameCn;
+    @ApiModelProperty(value = "排序号")
+    private Integer sortNo;
+
+    @ApiModelProperty(value = "（0：正常，1：停用）")
+    private Integer status;
 
     @ApiModelProperty(value = "创建人id")
     private String createId;
@@ -51,7 +54,8 @@ public class Table implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime editTime;
 
-    @ApiModelProperty(value = "树级目录id")
-    private String menuId;
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
 
 }

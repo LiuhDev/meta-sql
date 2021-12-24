@@ -12,17 +12,17 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 表
+ * 采集表
  * </p>
  *
  * @author liu hao
- * @since 2021-12-07
+ * @since 2021-12-24
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("t_table")
-@ApiModel(value="Table对象", description="表")
-public class Table implements Serializable {
+@TableName("t_collection")
+@ApiModel(value="Collection对象", description="采集表")
+public class Collection implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -30,14 +30,32 @@ public class Table implements Serializable {
     @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
-    @ApiModelProperty(value = "表名编号")
-    private String tableCode;
+    @ApiModelProperty(value = "数据源名称")
+    private String dataSourceName;
 
-    @ApiModelProperty(value = "表名")
-    private String tableName;
+    @ApiModelProperty(value = "数据源挂载路径")
+    private String dataSourcePath;
 
-    @ApiModelProperty(value = "中文表名")
-    private String tableNameCn;
+    @ApiModelProperty(value = "数据源采集模式")
+    private String collectionMode;
+
+    @ApiModelProperty(value = "描述")
+    private String description;
+
+    @ApiModelProperty(value = "驱动")
+    private String driver;
+
+    @ApiModelProperty(value = "数据访问url")
+    private String dataSourceUrl;
+
+    @ApiModelProperty(value = "用户名")
+    private String userName;
+
+    @ApiModelProperty(value = "密码")
+    private String password;
+
+    @ApiModelProperty(value = "库名")
+    private String databaseName;
 
     @ApiModelProperty(value = "创建人id")
     private String createId;
@@ -51,7 +69,5 @@ public class Table implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime editTime;
 
-    @ApiModelProperty(value = "树级目录id")
-    private String menuId;
 
 }

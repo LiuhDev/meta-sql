@@ -18,9 +18,9 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/database")
 @Api("测试API接口")
-public class TestController {
+public class DatabaseController {
 
     @Resource
     private SqlAssembleService sqlAssembleService;
